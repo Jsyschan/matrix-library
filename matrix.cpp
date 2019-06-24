@@ -16,7 +16,7 @@ Matrix::Matrix(){
 
 //Destructor
 Matrix::~Matrix(){
-	//printf("Nrows is %d\tNcols is %d\n",nrows,ncols);
+	//printf("DESTROY: Nrows is %d\tNcols is %d\n",nrows,ncols);
 	for(int i=nrows-1; i>=0; i--){
 		//for(int j=ncols-1; j>=0; j--)
 		//	free(this->array[i][j]);	
@@ -44,29 +44,31 @@ Matrix::Matrix(int row, int col){
 			this->array[i][j] = (double ) 0;
 		}
 	}
+	//printf("LEAVING CONSTRUCTOR\n");
 }
 
 
 //Pretty Print, takes into account the space between each element of matrix
 void Matrix::print() const {
-	printf("\n");
+	printf("Size is %d by %d\t\n",nrows,ncols);
 	for(int i=0; i<nrows; i++){
 		printf("Row %3d: [",i);
 		for(int j=0; j<ncols; j++){			printf(" %07.3f",array[i][j]);		}
 		printf(" ]\n");
 	}
+	printf("Leaving PRINT OP\n");
 }
 
 //When you want to copy a matrix to another Matrix variable
 void Matrix::operator= (const Matrix &M) {
-	
+
 	//First, Go through the variable Matrix and free the array
 	if(this->array != NULL){
 		for(int i=nrows-1; i>=0; i--)	free(this->array[i]);	
 		free(this->array);
 		this->array = NULL;
 	}
-	
+
 	//Using parameters from the matrix being copied, rebuild it
 	this->nrows = M.nrows;	this->ncols = M.ncols;	this->ncell = M.ncell;
 
@@ -157,7 +159,7 @@ Matrix Matrix::transpose() const {
 	for (i=0 ; i<ncols ; i++)
 		for (j=0 ; j<nrows ; j++)
 			result.array[i][j] = array[j][i];
-		
+
 	return result;
 }
 
@@ -211,22 +213,22 @@ Matrix Matrix::applyFunc(double (*function)(double)) const{
 
 
 
-void Matrix::fill(int X, int Y, double V){	this->array[X][Y] = V;}
-void Matrix::fake(){
+//void Matrix::fill(int X, int Y, double V){	this->array[X][Y] = V;}
+void Matrix::fake1() {
 	for(int i=0; i<nrows; i++)
 		for(int j=0; j<ncols; j++)
 			this->array[i][j] = ((i*ncols)+j)+1;	
 }
-void Matrix::fake(double input){
+void Matrix::fake2(){
 	for(int i=0; i<nrows; i++)
 		for(int j=0; j<ncols; j++)
-			this->array[i][j] =  random() % 100; //input;
+			this->array[i][j] =  (random()*1000) % 7; //input;
 }
-void Matrix::fake(int input){
-	for(int i=0; i<nrows; i++)
-		for(int j=0; j<ncols; j++)
-			this->array[i][j] = random() % 100; //(double) input;	
-}
+//void Matrix::fake(int input){
+//	for(int i=0; i<nrows; i++)
+//		for(int j=0; j<ncols; j++)
+//			this->array[i][j] = random() % 100; //(double) input;	
+//}
 
 
 
