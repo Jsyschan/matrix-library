@@ -7,10 +7,8 @@ using namespace std;
 
 class Matrix{
 	public:
-			void fake();
-			void fake(int);
-			void fake(double);
-			void fill(int,int,double);
+		void fake1();				//Fill with sequential #s
+		void fake2();				//Fill with random #s
 		//Constructors
 		Matrix();					//EMPTY Matrix
 		Matrix(int, int);			//Matrix WITH ROW AND COL

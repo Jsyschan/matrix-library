@@ -8,13 +8,19 @@ using namespace std;
 
 //Constructors and Destructors
 Network::Network(){		this->hidden = NULL; 	this->weights = NULL; 	this->bias = NULL;	}
-Network::~Network(){ 	free(hidden);			free(weights);			free(bias);			}
+Network::~Network(){ 	
+	free(weights);
+	free(bias);
+	free(dweights);
+	free(dbias);
+	free(hidden);
+}
 
 
 //Dummy Func
-double random(double x){ return x+1; }
-double sigmoid(double X){   return X+1 ;                  }
-double dsigmoid(double X){  return X+1;   }
+double random(double x){ return (double) ( (rand()*10000) % 5); }
+double sigmoid(double X){   return X+1.0; }
+double dsigmoid(double X){  return X/10.0;   }
 
 
 //double random(double x){ return (double)(((rand() %10000)+1)/10000)+0.5; }
@@ -24,46 +30,98 @@ double dsigmoid(double X){  return X+1;   }
 
 
 //Initialize Neural Network
-void Network::initialize(int numInputN, int numOutputN, int numHiddenN, int numHiddenL, double LR){
-	assert(numInputN > 0 && numOutputN > 0 && numHiddenN > 0 && numHiddenL > 0 && LR > 0);
+void Network::initialize(int n_IN, int n_OUT, int l_HID, struct hlist *n_HID, double LR){
+
+	assert(n_IN > 0 && n_OUT > 0 && n_HID != NULL && l_HID > 0 && LR > 0.0);
+
+	//Check here and make sure that the # of hidd. neurons/layer match up with # of hidden layers
+	int cl_HID = 0;	struct hlist *pn_HID = n_HID;
+	while(pn_HID != NULL){		cl_HID++;		pn_HID = pn_HID->next;	}
+	if(cl_HID != l_HID){
+		printf("ERROR: Mismatch between # of hidd. neurons/layer & number of hidd. layers!\n");
+		printf("Number of Hidden Layers: %-3d\tNumber of hidd. neurons/layer: %-3d\n",l_HID,cl_HID);
+		exit(-1);
+	}
 
 	//Initialize the Network Base Parameters
-	this->nIN = numInputN;
-	this->nON = numOutputN;
-	this->nHN = numHiddenN;
-	this->nHL = numHiddenL;
+	this->nIN = n_IN;
+	this->nON = n_OUT;
+	//this->nHN = n_HID;
+	this->nHL = l_HID;
 	this->learn_rate = LR;
 
-	//For now, make all hidden layers have the same # of neurons
-	//Initialize the matrices: the rows represent each 'layer' in the network
-	this->hidden = (Matrix *) malloc(sizeof(Matrix)*nHL); //Hidden Matrix 
+	//Initialize the matrices: the rows represent each 'layer' in the network, from 0 to nHL-1
 
-	for(int i=0; i < nHL; i++)		this->hidden[i] = Matrix(1,nHN);
-
-	this->weights = (Matrix *) malloc(sizeof(Matrix)*(nHL +1)); //Matrices of Weights
-	for(int i=0; i < (nHL + 1); i++){
-		if(i==0)				this->weights[i] = Matrix(this->nIN,this->nHN);
-		else if(i == nHL)		this->weights[i] = Matrix(this->nHN,this->nON);
-		else					this->weights[i] = Matrix(this->nHN,this->nHN);				
+	//Hidden Matrices
+	pn_HID = n_HID;
+	this->hidden = (Matrix *) malloc(sizeof(Matrix)*nHL); 
+	for(int i=0; i < nHL; i++){
+		this->hidden[i] = Matrix(1,pn_HID->H);
+		pn_HID = pn_HID->next;
 	}
 
-	this->bias = (Matrix *) malloc(sizeof(Matrix)*(nHL +1)); //Matrices of Biases
+
+	//Weight Matrices
+	pn_HID = n_HID;
+	this->weights = (Matrix *) malloc(sizeof(Matrix)*(nHL +1));
+	this->dweights = (Matrix*) malloc(sizeof(Matrix)*(nHL +1));
+
 	for(int i=0; i < (nHL + 1); i++){
-		if(i == nHL)			this->bias[i] = Matrix(1,this->nON);
-		else					this->bias[i] = Matrix(1,this->nHN);				
+		if(i==0){		 
+			this->weights[i] = Matrix(this->nIN,pn_HID->H); //First H. Layer, from Input to H0
+			this->dweights[i] = Matrix(this->nIN,pn_HID->H); //First H. Layer, from Input to H0
+		}
+		else if(i == nHL){
+			this->weights[i] = Matrix(pn_HID->H,this->nON); //Last H. Layer, from H[nHL-1] to Output
+			this->dweights[i] = Matrix(pn_HID->H,this->nON); //Last H. Layer, from H[nHL-1] to Output
+		}
+		else{
+			this->weights[i] = Matrix(pn_HID->H,pn_HID->next->H);	//All Layers in between
+			this->dweights[i] = Matrix(pn_HID->H,pn_HID->next->H);	//All Layers in between
+			pn_HID = pn_HID->next;
+		}
+	}	
+
+	//Bias Matrices
+	pn_HID = n_HID;
+	this->bias = (Matrix *) malloc(sizeof(Matrix)*(nHL +1));
+	this->dbias = (Matrix*) malloc(sizeof(Matrix)*(nHL +1));
+
+	for(int i=0; i < (nHL + 1); i++){
+		if(i == nHL)			{
+			this->bias[i] = Matrix(1,this->nON);
+			this->dbias[i] = Matrix(1,this->nON);
+		}
+		else{
+			this->bias[i] = Matrix(1,pn_HID->H);				
+			this->dbias[i] = Matrix(1,pn_HID->H);				
+			pn_HID = pn_HID->next;
+		}
 	}
+
+	//Hidden Matrices
+	for(int i=0; i < nHL; i++)		this->hidden[i].fake1();
+
+	//Weight Matrices
+	for(int i=0; i < (nHL + 1); i++) this->weights[i].fake1();
+
+	//Bias Matrices
+	for(int i=0; i < (nHL + 1); i++) this->bias[i].fake1();
+
+
+
+
 }
 
+//Use this to randomize the weights and biases
 void Network::randomize(){
 	for(int i=0; i<((this->nHL)+1); i++)		this->bias[i] = this->bias[i].applyFunc(random);
 	for(int i=0; i<((this->nHL)+1); i++)		this->weights[i] = this->weights[i].applyFunc(random);	
 }
 
 
-//Matrix Network::iterate(Matrix &input){
-//Matrix Network::iterate(const Matrix &input){
 Matrix Network::iterate(const Matrix &input){
-	
+
 	Matrix output;
 	for(int i=0; i<=(this->nHL); i++){ //'i' represents the layer that you are trying to calculate
 		//printf("----------------------------------------------------------------------\n");
@@ -88,7 +146,7 @@ Matrix Network::iterate(const Matrix &input){
 		{
 			//printf("Input Hidden %d: \n",i-1); this->hidden[i-1].print();
 			//printf("Weight %d:\n",i); this->weights[i].print();
-			printf("Biased %d:\n",i); this->bias[i].print();
+			//printf("Biased %d:\n",i); this->bias[i].print();
 			this->hidden[i] = ((this->hidden[i-1])*(this->weights[i]))+(this->bias[i]);
 			this->hidden[i] = this->hidden[i].applyFunc(sigmoid);
 		} 
@@ -102,6 +160,96 @@ Matrix Network::iterate(const Matrix &input){
 	 */
 	return output;
 }
+
+
+
+//Back Propagation Function
+void Network::back_prop(const Matrix &input, const Matrix &output, const Matrix &ideal){
+
+	Matrix diff = output - ideal;
+	Matrix temp;
+	for(int i=this->nHL; i>=0; i--){
+
+		if( i == this->nHL){
+			temp = (this->hidden[i-1]*this->weights[i])+this->bias[i];
+			temp = temp.applyFunc(dsigmoid);
+			this->dbias[i] = diff.hadamard(temp);
+			this->dweights[i] = this->hidden[i-1].transpose() * this->dbias[i];
+		}
+		else if( i == 0){
+			temp = (input*this->weights[i])+this->bias[i];
+			temp = temp.applyFunc(dsigmoid);
+
+			this->dbias[i] = this->dbias[i+1] * this->weights[i+1].transpose();
+			this->dbias[i] = this->dbias[i].hadamard(temp);
+
+
+
+			this->dweights[i] = input.transpose() * this->dbias[i];
+		}
+		else{
+
+
+			temp = (this->hidden[i-1]*this->weights[i])+this->bias[i];
+			temp = temp.applyFunc(dsigmoid);
+
+
+			this->dbias[i] = this->dbias[i+1] * this->weights[i+1].transpose();
+			this->dbias[i] = this->dbias[i].hadamard(temp);
+
+			this->dweights[i] = this->hidden[i-1].transpose() * this->dbias[i];
+
+		}
+	}
+/*
+	printf("-------------------------------------------------------\n\n");
+	printf("Output Diff:\n");
+	diff.print();
+
+	printf("------------------------------------------------------\n\n");
+	printf("derivative Weights:\n");
+	for(int i=0; i<(nHL+1); i++){
+		printf("\nLayer %d:\t",i);
+		dweights[i].print();
+	}
+
+
+	printf("------------------------------------------------------\n\n");
+	printf("derivative Biases:\n");
+	for(int i=0; i<(nHL+1); i++){
+		printf("\nLayer %d:\t",i);
+		dbias[i].print();
+	}
+*/
+
+	//UPDATING
+	for(int i=0; i<=(this->nHL); i++){
+		this->weights[i] = (this->weights[i]) - (this->dweights[i] * learn_rate);
+		this->bias[i] = (this->bias[i]) - (this->dbias[i] * learn_rate);
+
+
+	}
+
+
+
+
+	//printf("Leaving dNN PRINT\n");
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
 
 
 
@@ -150,7 +298,7 @@ void Network::print(){
 		bias[i].print();
 	}
 
-
+	printf("Leaving NN PRINT\n");
 
 }
 
