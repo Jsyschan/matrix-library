@@ -33,7 +33,6 @@ class Network{
 		double learn_rate;	//Learning Rate of Network
 		int nIN;		//Number of Input Neurons
 		int nON;		//Number of Output Neurons
-		//int nHN;		//Number of Hidden Neurons
 		int nHL;		//Number of Hidden Layers
 
 		//Inner Workings: Array of Matrices of different sizes
@@ -42,8 +41,6 @@ class Network{
 		Matrix *bias;		//Matrix for Bias
 		Matrix *dweights;	//Matrix for rate of change for weights
 		Matrix *dbias;		//Matirx for rate of change for biases
-
-		//Matrix output;
 
 };
 

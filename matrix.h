@@ -7,22 +7,25 @@ using namespace std;
 
 class Matrix{
 	public:
-		void fake1();				//Fill with sequential #s
-		void fake2();				//Fill with random #s
 		//Constructors
 		Matrix();					//EMPTY Matrix
 		Matrix(int, int);			//Matrix WITH ROW AND COL
 		~Matrix();					//Destructor
+		void setRow(int);			//Set the number of Rows --EMPTY MATRIX ONLY
+		void setCol(int);			//Set the number of Cols --EMPTY MATRIX ONLY
+		
 		void operator= (const Matrix &);
 
 		//Matrix operations involving the matrix in question
-		Matrix operator* (const double &);			//Scalar
-		Matrix operator* (const int &);				//Scalar
-		Matrix operator* (const Matrix &) const;	//Dot Product
-		Matrix operator+ (const Matrix &) const;	//Matrix addition
-		Matrix operator- (const Matrix &) const;	//Matrix subtraction
-		Matrix hadamard  (const Matrix &) const;	//Hadamard Product
-		Matrix transpose() const;					//Transpose Matrix
+		double & operator()	(int,int) const;			//Get individual element
+		Matrix operator*	(const double &);			//Scalar
+		Matrix operator*	(const int &);				//Scalar
+		Matrix operator*	(const Matrix &) const;	//Hadamard Product
+		Matrix operator->*	(const Matrix &) const;	//Dot Product
+		Matrix operator+	(const Matrix &) const;	//Matrix addition
+		Matrix operator-	(const Matrix &) const;	//Matrix subtraction
+		Matrix transpose	() const;					//Transpose Matrix
+		Matrix subRow		(int)		const;	//Return a row of a Matrix
 
 		//Basic operations
 		int getRows(){ return nrows; }
