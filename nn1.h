@@ -10,18 +10,34 @@
 #include "matrix.h"
 using namespace std;
 
-struct hlist{
+struct dll_list{
 	int H;
-	hlist *next;
-	hlist *prev;
+	dll_list *next;
+	dll_list *prev;
 };
+
+
+struct dll_head{
+	dll_head();
+	~dll_head();
+
+	int n;
+	//int get_n const (int);
+	void insert (int);
+	void print_list();
+	dll_list *list;
+};
+
+
+
+
 
 
 class Network{
 	public:
 		Network();
 		~Network();
-		void initialize(int,int,int,struct hlist *,double);	//Initialize the Network
+		void initialize(int,int,int,struct dll_head *,double);	//Initialize the Network
 		void print();
 		void randomize();
 		Matrix iterate(const Matrix &); //Need to pass by reference else deletes it?

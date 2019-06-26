@@ -34,16 +34,15 @@ double dsigmoid(double X){  return exp(-X) / (pow(1+exp(-X), 2));   }
 
 
 //Initialize Neural Network
-void Network::initialize(int n_IN, int n_OUT, int l_HID, struct hlist *n_HID, double LR){
+void Network::initialize(int n_IN, int n_OUT, int l_HID, struct dll_head *n_HID, double LR){
 
 	assert(n_IN > 0 && n_OUT > 0 && n_HID != NULL && l_HID > 0 && LR > 0.0);
 
 	//Check here and make sure that the # of hidd. neurons/layer match up with # of hidden layers
-	int cl_HID = 0;	struct hlist *pn_HID = n_HID;
-	while(pn_HID != NULL){		cl_HID++;		pn_HID = pn_HID->next;	}
-	if(cl_HID != l_HID){
+	int cl_HID = 0;	struct dll_list *pn_HID = n_HID->list;
+	if(n_HID->n != l_HID){
 		printf("ERROR: Mismatch between # of hidd. neurons/layer & number of hidd. layers!\n");
-		printf("Number of Hidden Layers: %-3d\tNumber of hidd. neurons/layer: %-3d\n",l_HID,cl_HID);
+		printf("Number of Hidden Layers: %-3d\tNumber of hidd. neurons/layer: %-3d\n",l_HID,n_HID->n);
 		exit(-1);
 	}
 
@@ -56,7 +55,7 @@ void Network::initialize(int n_IN, int n_OUT, int l_HID, struct hlist *n_HID, do
 	//Initialize the matrices: the rows represent each 'layer' in the network, from 0 to nHL-1
 
 	//Hidden Matrices
-	pn_HID = n_HID;
+	pn_HID = n_HID->list;
 	this->hidden = (Matrix *) malloc(sizeof(Matrix)*nHL); 
 	for(int i=0; i < nHL; i++){
 		this->hidden[i] = Matrix(1,pn_HID->H);
@@ -65,7 +64,7 @@ void Network::initialize(int n_IN, int n_OUT, int l_HID, struct hlist *n_HID, do
 
 
 	//Weight Matrices
-	pn_HID = n_HID;
+	pn_HID = n_HID->list;
 	this->weights = (Matrix *) malloc(sizeof(Matrix)*(nHL +1));
 	this->dweights = (Matrix*) malloc(sizeof(Matrix)*(nHL +1));
 
@@ -86,7 +85,7 @@ void Network::initialize(int n_IN, int n_OUT, int l_HID, struct hlist *n_HID, do
 	}	
 
 	//Bias Matrices
-	pn_HID = n_HID;
+	pn_HID = n_HID->list;
 	this->bias = (Matrix *) malloc(sizeof(Matrix)*(nHL +1));
 	this->dbias = (Matrix*) malloc(sizeof(Matrix)*(nHL +1));
 
@@ -167,8 +166,8 @@ void Network::back_prop(const Matrix &input, const Matrix &output, const Matrix 
 	Matrix diff = output - ideal;
 	Matrix temp;
 	for(int i=this->nHL; i>=0; i--){
-		
-		
+
+
 		if( i == this->nHL){
 			temp = (this->hidden[i-1]->*this->weights[i])+this->bias[i];
 			temp = temp.applyFunc(dsigmoid);
@@ -200,26 +199,26 @@ void Network::back_prop(const Matrix &input, const Matrix &output, const Matrix 
 
 		}
 	}
-/*
-	printf("-------------------------------------------------------\n\n");
-	printf("Output Diff:\n");
-	diff.print();
+	/*
+	   printf("-------------------------------------------------------\n\n");
+	   printf("Output Diff:\n");
+	   diff.print();
 
-	printf("------------------------------------------------------\n\n");
-	printf("derivative Weights:\n");
-	for(int i=0; i<(nHL+1); i++){
-		printf("\nLayer %d:\t",i);
-		dweights[i].print();
-	}
+	   printf("------------------------------------------------------\n\n");
+	   printf("derivative Weights:\n");
+	   for(int i=0; i<(nHL+1); i++){
+	   printf("\nLayer %d:\t",i);
+	   dweights[i].print();
+	   }
 
 
-	printf("------------------------------------------------------\n\n");
-	printf("derivative Biases:\n");
-	for(int i=0; i<(nHL+1); i++){
-		printf("\nLayer %d:\t",i);
-		dbias[i].print();
-	}
-*/
+	   printf("------------------------------------------------------\n\n");
+	   printf("derivative Biases:\n");
+	   for(int i=0; i<(nHL+1); i++){
+	   printf("\nLayer %d:\t",i);
+	   dbias[i].print();
+	   }
+	 */
 
 	//UPDATING
 	for(int i=0; i<=(this->nHL); i++){
@@ -305,16 +304,68 @@ void Network::print(){
 
 
 
+///// Functions for the DLL list
+dll_head::dll_head(){
+	n=0; 
+	list = NULL;
+}
+
+dll_head::~dll_head(){
+	if(n != 0){
+
+		dll_list *tmp = list;
+		while(tmp->next != NULL) 
+			tmp = tmp->next;
+
+		//Go through all items before the first item
+		while(tmp->prev != NULL){
+			printf("Deleting node with %d\n",tmp->H);
+			tmp = tmp->prev;
+			free(tmp->next);
+			tmp->next = NULL;
+		}
+
+		printf("At first node: Deleting node with %d\n",tmp->H);
+		free(list);
+
+		list = NULL;
+	}
+}
+
+
+void dll_head::insert(int item){
+	dll_list *tmp = list;
+	if(list == NULL){
+		list = (dll_list *) malloc(sizeof(dll_list));
+		list->H = item;
+		list->next = NULL;
+		list->prev = NULL;
+		n++;
+	}
+	else{
+		while(tmp->next != NULL) tmp = tmp->next;
+		tmp->next = (dll_list *) malloc(sizeof(dll_list));
+		tmp->next->prev = tmp;
+		tmp->next->next = NULL;
+		tmp->next->H = item;
+		n++;
+	}
+}
 
 
 
-
-
-
-
-
-
-
-
+void dll_head::print_list(){
+	int i=0;
+	if(n == 0) printf("There are no items in the list\n");
+	else{
+		dll_list *tmp = list;
+		while(tmp != NULL){
+			i++;
+			printf("Item %d is %d\n",i,tmp->H);
+			tmp = tmp->next;
+		}
+		printf("\nThere are %d items in the list, and N is %d\n",i,n);
+	}
+}
 
 
