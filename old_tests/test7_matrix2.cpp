@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){ //C.applyFunc(SP);
 
 	printf("\n\nCreating TEMP matrix\n");
 	Matrix tmp1(1,3);
-	tmp1.fake1();
+	tmp1(0,0) = 117;
 	printf("\n\nPRINTING TEMP\n\n");
 	tmp1.print();
 
@@ -27,7 +27,13 @@ int main(int argc, char *argv[]){ //C.applyFunc(SP);
 	Matrix ideal = tmp1; //THIS IS THE PROBLEM RIGHT HERE!!!
 	printf("\n\nPRINTING IDEAL\n\n");
 	ideal.print();
-	
+	ideal(0,1) = 543;
+
+	printf("IDEWAL AGAIN\n");
+	ideal.print();
+
+	printf("TMP again!\n");
+	tmp1.print();
 
 
 

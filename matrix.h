@@ -10,6 +10,7 @@ class Matrix{
 		//Constructors
 		Matrix();					//EMPTY Matrix
 		Matrix(int, int);			//Matrix WITH ROW AND COL
+		Matrix(const Matrix &);
 		~Matrix();					//Destructor
 		void setRow(int);			//Set the number of Rows --EMPTY MATRIX ONLY
 		void setCol(int);			//Set the number of Cols --EMPTY MATRIX ONLY
@@ -26,7 +27,7 @@ class Matrix{
 		Matrix operator-	(const Matrix &) const;	//Matrix subtraction
 		Matrix transpose	() const;					//Transpose Matrix
 		Matrix subRow		(int)		const;	//Return a row of a Matrix
-
+		Matrix subCol		(int)		const;	//Return a col of a Matrix
 		//Basic operations
 		int getRows(){ return nrows; }
 		int getCols(){ return ncols; }

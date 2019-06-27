@@ -23,10 +23,6 @@ Network::~Network(){
 
 
 //Dummy Func
-//double random(double x){ return (double) ( (rand()*10000) % 5); }
-//double sigmoid(double X){   return X+1.0; }
-//double dsigmoid(double X){  return X/10.0;   }
-
 double random(double x){ return (double) ((rand() %10000)+1)/10000-0.5; }
 double sigmoid(double X){   return 1/(1+exp(-X));                   }
 double dsigmoid(double X){  return exp(-X) / (pow(1+exp(-X), 2));   }
@@ -319,13 +315,13 @@ dll_head::~dll_head(){
 
 		//Go through all items before the first item
 		while(tmp->prev != NULL){
-			printf("Deleting node with %d\n",tmp->H);
+			//printf("Deleting node with %d\n",tmp->H);
 			tmp = tmp->prev;
 			free(tmp->next);
 			tmp->next = NULL;
 		}
 
-		printf("At first node: Deleting node with %d\n",tmp->H);
+		//printf("At first node: Deleting node with %d\n",tmp->H);
 		free(list);
 
 		list = NULL;
