@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){ //C.applyFunc(SP);
 	outputs(0,0) = 0;	outputs(0,1) = 1;
 	outputs(1,0) = 1;	outputs(1,1) = 0;
 	outputs(2,0) = 1;	outputs(2,1) = 0;
-	outputs(3,0) = 0;	outputs(3,1) = 1;
+	outputs(3,0) = 1;	outputs(3,1) = 0;
 	//outputs.print();
 
 	Matrix IN, IDEAL, output;
@@ -76,6 +76,9 @@ int main(int argc, char *argv[]){ //C.applyFunc(SP);
 		output.print();
 	}
 
+	Matrix col1 = outputs.subCol(1);
+	printf("COL1\n\n");
+	col1.print();
 
 
 	return 0;
