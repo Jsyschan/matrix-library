@@ -10,8 +10,16 @@ class Matrix{
 		//Constructors
 		Matrix();					//EMPTY Matrix
 		Matrix(int, int);			//Matrix WITH ROW AND COL
+<<<<<<< HEAD
+		Matrix(const Matrix &);		//Copy Constructor
+		//void* operator new(size_t size);		//NEW operator
+		~Matrix();					//Destructor
+		//void operator delete(void*);//DELETE operator
+
+=======
 		Matrix(const Matrix &);
 		~Matrix();					//Destructor
+>>>>>>> d94244eaa93d259f0091fdf4a5fccc5cb28dd777
 		void setRow(int);			//Set the number of Rows --EMPTY MATRIX ONLY
 		void setCol(int);			//Set the number of Cols --EMPTY MATRIX ONLY
 		

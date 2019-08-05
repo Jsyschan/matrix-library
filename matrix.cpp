@@ -4,7 +4,26 @@
 
 using namespace std;
 
+<<<<<<< HEAD
+/*
+void* Matrix::operator new(size_t size){
+	this->array = NULL;
+	this->nrows = -1;
+	this->ncols = -1;
+	this->ncell = 0;
+}
 
+void Matrix::operator delete(void* p){
+	if(this->array != NULL){
+		for(int i=nrows-1; i>=0; i--)		
+			free(this->array[i]);	
+		free(this->array);
+	}
+}
+*/
+=======
+
+>>>>>>> d94244eaa93d259f0091fdf4a5fccc5cb28dd777
 
 //Empty Constructor
 Matrix::Matrix(){
@@ -83,6 +102,10 @@ void Matrix::print() const {
 
 //Given an empty matrix, start to build it up by setting the number of rows:
 void Matrix::setRow(int X){
+<<<<<<< HEAD
+	//assert((this->array) == NULL && 0 < X);
+=======
+>>>>>>> d94244eaa93d259f0091fdf4a5fccc5cb28dd777
 	assert((this->nrows) == -1 && 0 < X);
 	this->nrows = X;
 	this->array = (double **) malloc(sizeof(double *)*X);
@@ -93,6 +116,10 @@ void Matrix::setRow(int X){
 //Given an empty matrix, start to build it up by setting the number of cols
 //You're assuming here that the rows have already been allocated
 void Matrix::setCol(int Y){
+<<<<<<< HEAD
+	//assert((this->array) != NULL && (this->nrows) > 0 && 0 < Y);
+=======
+>>>>>>> d94244eaa93d259f0091fdf4a5fccc5cb28dd777
 	assert((this->nrows) != -1 && (this->nrows) > 0 && 0 < Y && (this->ncols) == -1);
 	this->ncols = Y;
 
